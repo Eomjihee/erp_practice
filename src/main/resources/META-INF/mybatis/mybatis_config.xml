@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL"/>
+		<setting name="callSettersOnNulls" value="false"/>
+	</settings>
+	<typeAliases>
+ 	 	<typeAlias type="kr.or.erp.dto.CodeDepartment" alias="CodeDepartment"/>
+	 	<typeAlias type="kr.or.erp.dto.CodeSchool" alias="CodeSchool"/>
+	 	<typeAlias type="kr.or.erp.dto.CodeSkill" alias="CodeSkill"/>
+	 	<typeAlias type="kr.or.erp.dto.Staff" alias="Staff"/>
+	 	<typeAlias type="kr.or.erp.dto.StaffSkill" alias="StaffSkill"/>
+	</typeAliases>
+	<mappers>
+		<mapper resource="META-INF/mybatis/mappers/codeDepartments.xml"/>
+		<mapper resource="META-INF/mybatis/mappers/codeSchools.xml"/>
+		<mapper resource="META-INF/mybatis/mappers/codeSkills.xml"/>
+		<mapper resource="META-INF/mybatis/mappers/staffs.xml"/>
+		<mapper resource="META-INF/mybatis/mappers/staffSkills.xml"/>
+	</mappers>
+</configuration>

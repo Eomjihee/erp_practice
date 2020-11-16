@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="kr.or.erp.dao.StaffSkillDao">
+	<insert id="add" parameterType="StaffSkill">
+		INSERT INTO staff_skill 
+		(staff_skill_no, staff_no, skill_code)
+		SELECT staff_skill_seq.nextval, A.*
+		FROM(
+		<foreach collection="skills" item="skill" separator="UNION ALL ">
+		SELECT
+			#{staff.no} 		as staff_no,
+			#{skill.code} 		as skill_code
+		FROM
+			DUAL			
+		</foreach>
+		) A
+	</insert>
+	<select id="getSkillByStaffNo" parameterType="int" resultType="StaffSkill">
+		SELECT 
+		    STAFF_SKILL_NO      AS "no", 
+		    STAFF_NO            AS "staff.no",
+		    SKILL_CODE          AS "skill"
+		FROM staff_skill 
+		WHERE staff_no = #{value}
+	</select>
+	<delete id="deleteByStaffNo" parameterType="int">
+		DELETE STAFF_SKILL WHERE STAFF_NO = #{value}
+	</delete>
+
+
+</mapper> 

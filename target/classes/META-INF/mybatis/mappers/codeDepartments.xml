@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="kr.or.erp.dao.CodeDepartmentDao">
+	<select id="getAllCodeDepartment" resultType="CodeDepartment">
+		select 
+			department_code 		as "code",
+			department_name 		as "name"
+		from
+			code_department
+		order by department_code
+	</select>
+	<select id="getDepartmentByCode" parameterType="int" resultType="CodeDepartment">
+		select 
+			department_code 		as "code",
+			department_name 		as "name"
+		from
+			code_department
+		where
+			department_code = #{value}
+		order by department_code
+	</select>
+</mapper>

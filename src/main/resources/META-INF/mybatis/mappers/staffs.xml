@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="kr.or.erp.dao.StaffDao">
+
+	<select id="getJuminByJumin" resultType="Staff">
+		select 
+			STAFF_NO 		AS "no",
+			STAFF_NAME 		AS "name",
+			JUMIN_NO 		AS "juminNo",
+			SCHOOL_CODE 	AS "school.code",
+			DEPARTMENT_CODE AS "department.code",
+			GRADUATE_DAY 	AS "graduateDay"
+		from staff
+		where jumin_no 
+		in (#{jumin})
+		and staff_no not in (#{no}) 
+	</select>
+	<select id="getStaffByNo" parameterType="int" resultType="Staff">
+		SELECT 
+			STAFF_NO 		AS "no",
+			STAFF_NAME 		AS "name",
+			JUMIN_NO 		AS "juminNo",
+			SCHOOL_CODE 	AS "school.code",
+			DEPARTMENT_CODE AS "department.code",
+			GRADUATE_DAY 	AS "graduateDay"
+		FROM
+			STAFF
+		WHERE STAFF_NO = #{value}
+	</select>
+	<sql id="pagingHeaderSql">
+		<![CDATA[
+		select  
+			B.rnum  			as "rowNumber", 
+			B."no", 
+			b."name", 
+			b."juminNo", 
+			b."school.code",
+			b."department.code", 
+			b."graduateDay"
+		from (
+		        select rownum as rnum, A.*
+		        from(
+		]]>        
+	</sql>
+	
+	<sql id="pagingFooterSql">
+		 <![CDATA[
+		 ) A where rownum <= #{pagination.endIndex}
+			) B
+			where B.rnum >= #{pagination.beginIndex}
+		]]>
+	</sql>
+	<sql id="searchSql">
+			<where>
+				<if test="searchForm.name != null and searchForm.name != '' ">
+					AND STAFF_NAME LIKE '%'||#{searchForm.name}||'%'
+				</if>
+				<if test="searchForm.gender.size() != 0 ">
+					AND SUBSTR(JUMIN_NO,8,1) IN
+					<foreach collection="searchForm.gender" item="item" open="(" close=")" separator=",">
+						CASE
+							WHEN #{item} = 'male' then '1'
+							ELSE  '2'
+						END,
+						CASE
+							WHEN #{item} = 'male' then '3'
+							ELSE  '4'
+						END,
+						CASE
+							WHEN #{item} = 'male' then '5'
+							ELSE  '6'
+						END,
+						CASE
+							WHEN #{item} = 'male' then '7'
+							ELSE  '8'
+						END,
+						CASE
+							WHEN #{item} = 'male' then '9'
+							ELSE  '0'
+						END
+					</foreach>
+				</if>
+				
+				<if test="searchForm.department != null and searchForm.department != '' ">
+					AND DEPARTMENT_CODE IN #{searchForm.department}
+				</if>
+				<if test="searchForm.education.size() != 0">
+					AND SCHOOL_CODE IN
+						<foreach collection="searchForm.education" item="item" open="(" close=")" separator=",">
+							#{item}
+						</foreach>
+				</if>
+				<if test="searchForm.skill.size() != 0 ">
+					AND STAFF_NO IN 
+						(	SELECT STAFF_NO
+							FROM STAFF_SKILL
+							WHERE SKILL_CODE IN 
+							<foreach collection="searchForm.skill" item="item" open="(" close=")" separator=",">
+								#{item}
+							</foreach>
+						)
+				</if>
+				<if test="searchForm.startYear != '' 
+							and searchForm.startMonth != '' 
+							and searchForm.startDay != '' 
+							and searchForm.endYear != '' 
+							and searchForm.endMonth != '' 
+							and searchForm.endDay != '' ">
+					AND GRADUATE_DAY 
+					BETWEEN to_date(#{searchForm.startDate},'yyyy-MM-dd')
+					AND to_date(#{searchForm.endDate},'yyyy-MM-dd')
+				</if>
+				<if test="searchForm.keywordType != '' and searchForm.keyword != '' ">
+					<choose>
+						<when test="searchForm.keywordType == 'or' ">
+							 OR STAFF_NO IN
+							(
+								SELECT STAFF_NO
+								FROM STAFF_SKILL
+								WHERE SKILL_CODE IN
+													( SELECT SKILL_CODE 
+														FROM CODE_SKILL
+														WHERE LOWER(SKILL_NAME)
+														LIKE LOWER('%'||#{searchForm.keyword}||'%')
+													) 
+							)
+						</when>
+						<when test="searchForm.keywordType == 'and' ">
+							AND STAFF_NO IN
+							(
+								SELECT STAFF_NO
+								FROM STAFF_SKILL
+								WHERE SKILL_CODE IN
+													( SELECT SKILL_CODE 
+														FROM CODE_SKILL
+														WHERE LOWER(SKILL_NAME)
+														LIKE LOWER('%'||#{searchForm.keyword}||'%')
+													) 
+							)
+						</when>
+					</choose>
+				</if>
+			</where>
+	</sql>
+	<sql id="orderbySql">
+	<trim prefix="ORDER BY" suffixOverrides=",">
+		<choose>
+			<when test="searchForm.noBtn == 'down' 
+						|| searchForm.nameBtn == 'down' 
+						|| searchForm.genderBtn == 'down'
+						|| searchForm.deptBtn == 'down' 
+						|| searchForm.graduateBtn == 'down' ">
+				<if test="searchForm.noBtn == 'down' ">
+					rnum DESC,
+				</if>
+				<if test="searchForm.nameBtn == 'down' ">
+					B."name" DESC,
+				</if>
+				<if test="searchForm.genderBtn == 'down' ">
+					substr(B."juminNo",8,1) DESC,
+				</if>
+				<if test="searchForm.deptBtn == 'down' ">
+					B."department.code" DESC,
+				</if>
+				<if test="searchForm.graduateBtn == 'down' ">
+					B."graduateDay" DESC,
+				</if>
+			</when>
+		</choose>
+	</trim>
+		
+		
+	</sql>
+	
+	
+	<select id="getAllStaff" parameterType="map" resultType="Staff">
+		<if test="pagination != null">
+			<include refid="pagingHeaderSql" />
+		</if>
+		
+		SELECT 
+			STAFF_NO 		AS "no",
+			STAFF_NAME 		AS "name",
+			JUMIN_NO 		AS "juminNo",
+			SCHOOL_CODE 	AS "school.code",
+			DEPARTMENT_CODE AS "department.code",
+			GRADUATE_DAY 	AS "graduateDay"
+		FROM
+			STAFF
+		<if test="searchForm != null">
+			<include refid="searchSql" />
+		</if>
+		 order by staff_no desc
+		<if test="pagination != null">
+			<include refid="pagingFooterSql" />
+		</if>
+		<include refid="orderbySql" />
+		
+		
+	</select>
+	<select id="totalStaffCounts" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			STAFF
+		<include refid="searchSql" />	
+	</select>
+	
+	<update id="updateStaff" parameterType="Staff">
+		UPDATE 
+			STAFF
+		SET
+			STAFF_NAME = #{name},
+			JUMIN_NO = #{juminNo},
+			SCHOOL_CODE = #{school.code},
+			DEPARTMENT_CODE = #{department.code},
+			GRADUATE_DAY = #{graduateDay}
+		WHERE
+			STAFF_NO = #{no}
+	</update>
+	<delete id="deleteStaff" parameterType="int">
+		DELETE FROM STAFF WHERE STAFF_NO = #{value}
+	</delete>
+	
+	
+	
+	<insert id="add" parameterType="Staff" useGeneratedKeys="true" keyProperty="no">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE">
+  		 	 select staff_seq.nextval FROM DUAL
+ 		 </selectKey>
+		
+		INSERT INTO staff
+		(staff_no, staff_name, jumin_no, school_code, department_code, graduate_day)
+		VALUES
+		(#{no}, #{name}, #{juminNo}, #{school.code}, #{department.code}, #{graduateDay})
+	</insert>
+
+</mapper>
