@@ -50,17 +50,19 @@ public class StaffServiceImpl implements StaffService{
 
 	public Map<String, Object> list(Map<String, Object> param){
 		Map<String, Object> resultMap = new HashMap<String, Object>();
-
+	
 		int totalRows = staffDao.totalStaffCounts(param);
 		int rowsPerPage = 5;
 		int pagesPerBlock = 5;
 		int pageNo = (Integer) param.get("pageNo");
 		Pagination pagination = new Pagination(rowsPerPage, pagesPerBlock, pageNo, totalRows);
-		System.out.println("totalcount" + totalRows);
+		System.out.println("totalcount : " + totalRows);
 		System.out.println(pagination);
+		System.out.println("param.get으로 뽑은 searchForm : "+param.get("searchForm"));
 		param.put("pagination", pagination);
 		param.put("searchForm", param.get("searchForm"));
 		List<Staff> staffList = staffDao.getAllStaff(param);
+		System.out.println("staffList : "+staffList);
 		for(Staff staff : staffList) {
 			CodeDepartment department = departmentDao.getDepartmentByCode(staff.getDepartment().getCode());
 			CodeSchool school = schoolDao.getSchoolByCode(staff.getSchool().getCode());
@@ -178,5 +180,11 @@ public class StaffServiceImpl implements StaffService{
 		}
 
 		return date;
+	}
+	 @Override
+	public int total() {
+		 Map<String, Object> param = new HashMap<String, Object>();
+		 
+		 return staffDao.totalStaffCounts(param);
 	}
 }

@@ -12,4 +12,7 @@ public interface StaffService {
 	void updateStaff(AddForm addForm);
 	void deleteStaff(int staffNo);
 	boolean isDuplicatedJumin(String jumin, int staffNo);
+	
+	//ex
+	int total();
 }

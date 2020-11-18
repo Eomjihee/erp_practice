@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -72,9 +73,8 @@ public class StaffController {
 	
 		
 		Map<String, Object> param = new HashMap<String, Object>();
-		
 		param.put("searchForm", searchForm);
-
+		
 		param.put("query", "getAllCodeSchool");
 		List<CodeSchool> schoolList = codeService.codeSchoolList(param);
 		param.put("query", "getAllCodeSkill");
@@ -94,6 +94,7 @@ public class StaffController {
 		model.addAttribute("staffList", staffList);
 		model.addAttribute("pagination", pagination);
 		model.addAttribute("totalRows", pagination.getTotalRows());
+		System.out.println(model.getAttribute(searchForm.getIsAllSearch()));
 		return "staff/staff_search_form";
 	}
 	@PostMapping("/add.do")
@@ -146,5 +147,17 @@ public class StaffController {
 		System.out.println(isDuplicated); 
 		resultMap.put("isDuplicated", isDuplicated);
 		return resultMap;
+	}
+	@GetMapping("/ex")
+	@ResponseBody
+	public String ex() {
+//		Map<String, Object> resultMap = new HashMap<String, Object>();
+//		resultMap.put("a","ex");
+		
+		int a = staffService.total();
+		String b = Integer.toString(a);
+		
+		return b;
+		
 	}
 }
